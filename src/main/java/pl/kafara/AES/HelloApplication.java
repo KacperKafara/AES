@@ -51,29 +51,42 @@ public class HelloApplication extends Application {
 //            b[i] = res.get(i);
 //        }
 
-        byte[][] test = {
-                {(byte)0x19, (byte)0xa0, (byte)0x9a, (byte)0xe9},
-                {(byte)0x3d, (byte)0xf4, (byte)0xc6, (byte)0xf8},
-                {(byte)0xe3, (byte)0xe2, (byte)0x8d, (byte)0x48},
-                {(byte)0xbe, (byte)0x2b, (byte)0x2a, (byte)0x08}
-        };
+//        byte[][] test = {
+//                {(byte)0x19, (byte)0xa0, (byte)0x9a, (byte)0xe9},
+//                {(byte)0x3d, (byte)0xf4, (byte)0xc6, (byte)0xf8},
+//                {(byte)0xe3, (byte)0xe2, (byte)0x8d, (byte)0x48},
+//                {(byte)0xbe, (byte)0x2b, (byte)0x2a, (byte)0x08}
+//        };
+//
+//        byte[][] resu = aes.subBytes(test);
+//
+//        int tab[][] = new int[4][4];
+//
+//        for(int i = 0; i < 4; i++) {
+//            for (int j = 0; j < 4; j++) {
+//                tab[i][j] = resu[i][j] & 0xFF;
+//            }
+//        }
 
-        byte[][] resu = aes.subBytes(test);
-
-        int tab[][] = new int[4][4];
-
-        for(int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                tab[i][j] = resu[i][j] & 0xFF;
-            }
-        }
-
-        List<Byte> arr = aes.encode("tak".getBytes(), "a000a000a000a000a000a000a000a000".getBytes());
+        List<Byte> arr = aes.encode("tak".getBytes(), "a000a000a000a000".getBytes());
         int[] ms = new int[arr.size()];
+        byte[] res = new byte[arr.size()];
         for(int i = 0; i < arr.size(); i++) {
             ms[i] = arr.get(i) & 0xFF;
+            res[i] = arr.get(i);
         }
-        System.out.println(Arrays.toString(ms));
+        List<Byte> de = aes.decode(res, "a000a000a000a000".getBytes());
+        byte[] resde = new byte[de.size()];
+        for(int i = 0; i < de.size(); i++) {
+            resde[i] = de.get(i);
+        }
+        System.out.println(Arrays.toString(resde));
+        System.out.println(new String(resde));
+        System.out.println(Arrays.toString("tak".getBytes()));
+        System.out.println(Arrays.toString(res));
+        System.out.println(new String(res));
+//        System.out.println(aes.decode(res, "a000a000a000a000a000a000a000a000".getBytes()));
+//        System.out.println(Arrays.toString(ms));
 //        aes.encode("tak".getBytes(), "a000a000a000a000a000a000".getBytes());
     }
 }
