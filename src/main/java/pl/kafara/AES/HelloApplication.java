@@ -68,20 +68,12 @@ public class HelloApplication extends Application {
             }
         }
 
-//        System.out.println(Arrays.deepToString(tab));
-
-//        System.out.println(subByte((byte)0x19));
-//        System.out.println((byte)212);
-//        System.out.println(Arrays.deepToString(aes.generateKeyState("a000a000a000a000a000a000".getBytes())));
-//        System.out.println(Arrays.toString("a000a000a000a000a000a000".getBytes()));
-//        System.out.println(new String(b));
-//        System.out.println(new String(aes.encode("tak".getBytes(), "a000a000a000a000a000a000".getBytes())));
-        List<Byte> arr = aes.encode("tak".getBytes(), "a000a000a000a000a000a000".getBytes());
-        byte[] ms = new byte[arr.size()];
+        List<Byte> arr = aes.encode("tak".getBytes(), "a000a000a000a000a000a000a000a000".getBytes());
+        int[] ms = new int[arr.size()];
         for(int i = 0; i < arr.size(); i++) {
-            ms[i] = arr.get(i);
+            ms[i] = arr.get(i) & 0xFF;
         }
-        System.out.println(new String(ms));
+        System.out.println(Arrays.toString(ms));
 //        aes.encode("tak".getBytes(), "a000a000a000a000a000a000".getBytes());
     }
 }

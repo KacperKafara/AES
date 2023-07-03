@@ -55,11 +55,11 @@ public class Aes {
         return result;
     }
 
-    private byte[][] addRoundKey(byte[][] state, byte[][] key) {
+    private byte[][] addRoundKey(byte[][] state, byte[][] key, int round) {
         byte[][] result = new byte[4][4];
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                result[i][j] = (byte) (state[i][j] ^ key[i][j]);
+                result[i][j] = (byte) (state[i][j] ^ key[round * 4 + i][j]);
             }
         }
         return result;
@@ -73,18 +73,33 @@ public class Aes {
         return xor;
     }
 
-    public byte[][] keySchedule(byte[][] key) {
-        byte[] lastWord = key[key.length - 1];
-        byte[] firstWord = key[0];
-        byte[] rotWord = new byte[4];
-        rotWord[0] = lastWord[1];
-        rotWord[1] = lastWord[2];
-        rotWord[3] = lastWord[3];
-        rotWord[4] = lastWord[0];
-        for (int i = 0; i < 4; i++) {
-            rotWord[i] = subByte(rotWord[i]);
+    public byte[][] keyExpansion(byte[][] key) {
+        byte[] rcon = {(byte)0x01, (byte)0x02, (byte)0x04, (byte)0x08, (byte)0x10, (byte)0x20, (byte)0x40, (byte)0x80, (byte)0x1B, (byte)0x36};
+        byte[] temp;
+        byte[][] newKeyState = new byte[4 * (Nr + 1)][4];
+        for (int i = 0; i < key.length; i++) {
+            newKeyState[i] = key[i];
         }
-        return null;
+        for (int i = Nk; i < 4 * (Nr - 1); i++) {
+            temp = newKeyState[i - 1];
+            if (i % Nk == 0) {
+                byte tmp = temp[0];
+                temp[0] = temp[1];
+                temp[1] = temp[2];
+                temp[2] = temp[3];
+                temp[3] = tmp;
+                for (int j = 0; j < 4; j++) {
+                    temp[j] = subByte(temp[j]);
+                }
+                temp[0] = (byte) (temp[0] ^ rcon[i / Nk]);
+            } else if(Nk > 6 && i % Nk == 4) {
+                for (int j = 0; j < 4; j++) {
+                    temp[j] = subByte(temp[j]);
+                }
+            }
+            newKeyState[i] = xor(newKeyState[i - Nk], temp);
+        }
+        return newKeyState;
     }
 
     private byte subByte(byte b) {
@@ -151,16 +166,17 @@ public class Aes {
         for (int i = 0; i < 4; i++) {
             System.arraycopy(block, i * 4, state[i], 0, 4);
         }
-        state = addRoundKey(state, keyState);
+        keyState = keyExpansion(keyState);
+        state = addRoundKey(state, keyState, 0);
         for (int i = 1; i < this.Nr; i++) {
             state = subBytes(state);
             state = shiftRows(state);
             state = mixColumns(state);
-            state = addRoundKey(state, keyState);
+            state = addRoundKey(state, keyState, i);
         }
         state = subBytes(state);
         state = shiftRows(state);
-        state = addRoundKey(state, keyState);
+        state = addRoundKey(state, keyState, Nr);
         for (int i = 0; i < 4; i++) {
             System.arraycopy(state[i], 0, result, i * 4, 4);
         }
@@ -189,8 +205,6 @@ public class Aes {
                 result.add(block[j]);
             }
         }
-//        System.out.println(filledMsg);
-        System.out.println(result);
         return result;
     }
 }
