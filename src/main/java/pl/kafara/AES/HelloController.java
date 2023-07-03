@@ -119,6 +119,9 @@ public class HelloController implements Initializable {
     @FXML
     public void loadDecryptedFile(ActionEvent event) {
         loadFile(0, decryptedFileField);
+        saveDecryptedFileButton.setDisable(false);
+        if (key != null)
+            encryptButton.setDisable(false);
     }
 
     @FXML
@@ -129,6 +132,9 @@ public class HelloController implements Initializable {
     @FXML
     public void loadEncryptedFile(ActionEvent event) {
         loadFile(1, encryptedFileField);
+        saveEncryptedFileButton.setDisable(false);
+        if (key != null)
+            decryptButton.setDisable(false);
     }
 
     @FXML
@@ -139,7 +145,6 @@ public class HelloController implements Initializable {
     @FXML
     public void encrypt() throws Exception {
         if (decryptedFile.length > 0) {
-            System.out.println("tak");
             List<Byte> res = aes.encode(decryptedFile, key);
             encryptedFile = new byte[res.size()];
             int i = 0;
@@ -148,13 +153,14 @@ public class HelloController implements Initializable {
                 i++;
             }
             encryptedFileField.setText(byteToString(encryptedFile));
+            saveEncryptedFileButton.setDisable(false);
+            decryptButton.setDisable(false);
         }
     }
 
     @FXML
     public void decrypt() throws Exception {
         if (encryptedFile.length > 0) {
-            System.out.println("nie");
             List<Byte> res = aes.decode(encryptedFile, key);
             decryptedFile = new byte[res.size()];
             int i = 0;
@@ -163,12 +169,32 @@ public class HelloController implements Initializable {
                 i++;
             }
             decryptedFileField.setText(byteToString(decryptedFile));
+            encryptButton.setDisable(false);
+            saveDecryptedFileButton.setDisable(false);
         }
     }
 
     @FXML
     public void loadKey() {
         loadFile(2, keyField);
+        saveKeyButton.setDisable(false);
+        encryptButton.setDisable(false);
+        decryptButton.setDisable(false);
+        if (key.length != 16 && key.length != 24 && key.length != 32 || key == null) {
+            saveKeyButton.setDisable(true);
+            encryptButton.setDisable(true);
+            decryptButton.setDisable(true);
+            key = null;
+            keyField.setText("");
+        }
+
+        if (encryptedFile == null || encryptedFile.length == 0) {
+            encryptButton.setDisable(true);
+        }
+
+        if (decryptedFile == null || decryptedFile.length == 0) {
+            decryptButton.setDisable(true);
+        }
     }
 
     @FXML
@@ -185,6 +211,9 @@ public class HelloController implements Initializable {
             random.nextBytes(key);
         }
         keyField.setText(byteToString(key));
+        saveKeyButton.setDisable(false);
+        encryptButton.setDisable(false);
+        decryptButton.setDisable(false);
     }
 
     @FXML
@@ -199,5 +228,10 @@ public class HelloController implements Initializable {
         encryptedFileField.setWrapText(true);
         encryptedFileField.setEditable(false);
         keyField.setEditable(false);
+        saveKeyButton.setDisable(true);
+        saveDecryptedFileButton.setDisable(true);
+        saveEncryptedFileButton.setDisable(true);
+        encryptButton.setDisable(true);
+        decryptButton.setDisable(true);
     }
 }
