@@ -39,25 +39,17 @@ public class HelloApplication extends Application {
             0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF,
             0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16};
 
-    public static byte subByte(byte b) {
-        int row = (b >> 4) & 0x0f;
-        System.out.println(row);
-        int col = b & 0x0f;
-        System.out.println(col);
-        System.out.println(sBox[row * 16 + col]);
-        return (byte) sBox[row * 16 + col];
-    }
-
     public static void main(String[] args) throws Exception {
 //        launch();
         Aes aes = new Aes();
         String msg = "Hello, World!";
         byte[] msgToBytes = msg.getBytes();
-        List<Byte> res = aes.encode(msgToBytes, "a000a000a000a000".getBytes());
-        byte[] b = new byte[res.size()];
-        for (int i = 0; i < res.size(); i++) {
-            b[i] = res.get(i);
-        }
+//        System.out.println(new String(msgToBytes));
+//        List<Byte> res = aes.encode(msgToBytes, "a000a000a000a000".getBytes());
+//        byte[] b = new byte[res.size()];
+//        for (int i = 0; i < res.size(); i++) {
+//            b[i] = res.get(i);
+//        }
 
         byte[][] test = {
                 {(byte)0x19, (byte)0xa0, (byte)0x9a, (byte)0xe9},
@@ -76,12 +68,20 @@ public class HelloApplication extends Application {
             }
         }
 
-        System.out.println(Arrays.deepToString(tab));
+//        System.out.println(Arrays.deepToString(tab));
 
-        System.out.println(subByte((byte)0x19));
-        System.out.println((byte)212);
+//        System.out.println(subByte((byte)0x19));
+//        System.out.println((byte)212);
 //        System.out.println(Arrays.deepToString(aes.generateKeyState("a000a000a000a000a000a000".getBytes())));
 //        System.out.println(Arrays.toString("a000a000a000a000a000a000".getBytes()));
 //        System.out.println(new String(b));
+//        System.out.println(new String(aes.encode("tak".getBytes(), "a000a000a000a000a000a000".getBytes())));
+        List<Byte> arr = aes.encode("tak".getBytes(), "a000a000a000a000a000a000".getBytes());
+        byte[] ms = new byte[arr.size()];
+        for(int i = 0; i < arr.size(); i++) {
+            ms[i] = arr.get(i);
+        }
+        System.out.println(new String(ms));
+//        aes.encode("tak".getBytes(), "a000a000a000a000a000a000".getBytes());
     }
 }

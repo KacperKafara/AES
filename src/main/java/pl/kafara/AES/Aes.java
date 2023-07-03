@@ -1,6 +1,7 @@
 package pl.kafara.AES;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Aes {
@@ -64,10 +65,27 @@ public class Aes {
         return result;
     }
 
-//    private byte[][] keySchedule(byte[][] key) {
-//        byte[] lastWord;
-//
-//    }
+    private byte[] xor(byte[] message, byte[] key) {
+        byte[] xor = new byte[message.length];
+        for(int i = 0; i < message.length; i++) {
+            xor[i] = (byte) (message[i] ^ key[i]);
+        }
+        return xor;
+    }
+
+    public byte[][] keySchedule(byte[][] key) {
+        byte[] lastWord = key[key.length - 1];
+        byte[] firstWord = key[0];
+        byte[] rotWord = new byte[4];
+        rotWord[0] = lastWord[1];
+        rotWord[1] = lastWord[2];
+        rotWord[3] = lastWord[3];
+        rotWord[4] = lastWord[0];
+        for (int i = 0; i < 4; i++) {
+            rotWord[i] = subByte(rotWord[i]);
+        }
+        return null;
+    }
 
     private byte subByte(byte b) {
         int row = (b >> 4) & 0x0f;
@@ -85,6 +103,48 @@ public class Aes {
         return result;
     }
 
+    private byte[][] shiftRows(byte[][] state) {
+        byte[][] result = new byte[4][4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                result[i][j] = state[i][(j + i) % 4];
+            }
+        }
+        return result;
+    }
+
+    private byte[][] mixColumns(byte[][] state) {
+        byte[] result = new byte[4];
+        byte b01 = (byte)0x01;
+        byte b02 = (byte)0x02;
+        byte b03 = (byte)0x03;
+        for (int i = 0; i < 4; i++) {
+            result[0] = (byte) (mul(b02, state[0][i]) ^ mul(b03, state[1][i]) ^ mul(b01, state[2][i]) ^ mul(b01, state[3][i]));
+            result[1] = (byte) (mul(b01, state[0][i]) ^ mul(b02, state[1][i]) ^ mul(b03, state[2][i]) ^ mul(b01, state[3][i]));
+            result[2] = (byte) (mul(b01, state[0][i]) ^ mul(b01, state[1][i]) ^ mul(b02, state[2][i]) ^ mul(b03, state[3][i]));
+            result[3] = (byte) (mul(b03, state[0][i]) ^ mul(b01, state[1][i]) ^ mul(b01, state[2][i]) ^ mul(b02, state[3][i]));
+            for(int j = 0; j < 4; j++) {
+                state[j][i] = result[i];
+            }
+        }
+        return state;
+    }
+
+    private byte mul(byte a, byte b) {
+        byte aa = a, bb = b, r = 0, t;
+        while (aa != 0)
+        {
+            if ((aa & 1) != 0)
+                r = (byte) (r ^ bb);
+            t = (byte) (bb & 0x20);
+            bb = (byte) (bb << 1);
+            if (t != 0)
+                bb = (byte) (bb ^ 0x1b);
+            aa = (byte) ((aa & 0xff) >> 1);
+        }
+        return r;
+    }
+
     private byte[] encrypt(byte[] block, byte[][] keyState) {
         byte[][] state = new byte[4][4];
         byte[] result = new byte[16];
@@ -94,15 +154,18 @@ public class Aes {
         state = addRoundKey(state, keyState);
         for (int i = 1; i < this.Nr; i++) {
             state = subBytes(state);
+            state = shiftRows(state);
+            state = mixColumns(state);
             state = addRoundKey(state, keyState);
         }
+        state = subBytes(state);
+        state = shiftRows(state);
+        state = addRoundKey(state, keyState);
         for (int i = 0; i < 4; i++) {
             System.arraycopy(state[i], 0, result, i * 4, 4);
         }
         return result;
     }
-
-
 
     public List<Byte> encode(byte[] msg, byte[] key) throws Exception {
         List<Byte> filledMsg = new ArrayList<>();
@@ -126,6 +189,8 @@ public class Aes {
                 result.add(block[j]);
             }
         }
+//        System.out.println(filledMsg);
+        System.out.println(result);
         return result;
     }
 }
