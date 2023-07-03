@@ -236,11 +236,13 @@ public class Aes {
         byte[][] state = new byte[4][4];
         byte[] result = new byte[16];
         for (int i = 0; i < 4; i++) {
-            System.arraycopy(block, i * 4, state[i], 0, 4);
+            for (int j = 0; j < 4; j++) {
+                state[j][i] = block[i * 4 + j];
+            }
         }
         keyState = keyExpansion(keyState);
-        state = addRoundKey(state, keyState, 0);
-        for (int i = 1; i < this.Nr; i++) {
+        state = addRoundKey(state, keyState, Nr);
+        for (int i = this.Nr - 1; i >= 1; i--) {
             state = invShiftRows(state);
             state = subBytes(state, inv_sbox);
             state = addRoundKey(state, keyState, i);
@@ -248,9 +250,11 @@ public class Aes {
         }
         state = invShiftRows(state);
         state = subBytes(state, inv_sbox);
-        state = addRoundKey(state, keyState, Nr);
+        state = addRoundKey(state, keyState, 0);
         for (int i = 0; i < 4; i++) {
-            System.arraycopy(state[i], 0, result, i * 4, 4);
+            for (int j = 0; j < 4; j++) {
+                result[i * 4 + j] = state[j][i];
+            }
         }
         return result;
     }
