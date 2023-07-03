@@ -1,7 +1,6 @@
 package pl.kafara.AES;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Aes {
@@ -75,7 +74,7 @@ public class Aes {
         byte[][] result = new byte[4][4];
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                result[i][j] = (byte) (state[i][j] ^ key[round * 4 + i][j]);
+                result[i][j] = (byte) (state[i][j] ^ key[round * 4 + j][i]);
             }
         }
         return result;
@@ -89,15 +88,15 @@ public class Aes {
         return xor;
     }
 
-    public byte[][] keyExpansion(byte[][] key) {
+    private byte[][] keyExpansion(byte[][] key) {
         byte[] rcon = {(byte)0x01, (byte)0x02, (byte)0x04, (byte)0x08, (byte)0x10, (byte)0x20, (byte)0x40, (byte)0x80, (byte)0x1B, (byte)0x36};
         byte[] temp;
         byte[][] newKeyState = new byte[4 * (Nr + 1)][4];
-        for (int i = 0; i < key.length; i++) {
+        for (int i = 0; i < Nk; i++) {
             newKeyState[i] = key[i];
         }
-        for (int i = Nk; i < 4 * (Nr - 1); i++) {
-            temp = newKeyState[i - 1];
+        for (int i = Nk; i < 4 * (Nr + 1); i++) {
+            temp = newKeyState[i - 1].clone();
             if (i % Nk == 0) {
                 byte tmp = temp[0];
                 temp[0] = temp[1];
@@ -107,7 +106,7 @@ public class Aes {
                 for (int j = 0; j < 4; j++) {
                     temp[j] = subByte(temp[j], sBox);
                 }
-                temp[0] = (byte) (temp[0] ^ rcon[i / Nk]);
+                temp[0] = (byte) (temp[0] ^ rcon[(i - 1) / Nk]);
             } else if(Nk > 6 && i % Nk == 4) {
                 for (int j = 0; j < 4; j++) {
                     temp[j] = subByte(temp[j], sBox);
@@ -190,25 +189,29 @@ public class Aes {
     }
 
     private byte mul(byte a, byte b) {
-        byte aa = a, bb = b, r = 0, t;
-        while (aa != 0)
-        {
-            if ((aa & 1) != 0)
-                r = (byte) (r ^ bb);
-            t = (byte) (bb & 0x20);
-            bb = (byte) (bb << 1);
-            if (t != 0)
-                bb = (byte) (bb ^ 0x1b);
-            aa = (byte) ((aa & 0xff) >> 1);
+        byte res = 0;
+        byte hbit = 0;
+        for (int i = 0; i < 8; i++) {
+            if ((a & 1) != 0) {
+                res ^= b;
+            }
+            hbit = (byte) (b & 0x80);
+            b <<= 1;
+            if (hbit != 0) {
+                b ^= 0x1B;
+            }
+            a >>= 1;
         }
-        return r;
+        return res;
     }
 
     private byte[] encrypt(byte[] block, byte[][] keyState) {
         byte[][] state = new byte[4][4];
         byte[] result = new byte[16];
         for (int i = 0; i < 4; i++) {
-            System.arraycopy(block, i * 4, state[i], 0, 4);
+            for (int j = 0; j < 4; j++) {
+                state[j][i] = block[i * 4 + j];
+            }
         }
         keyState = keyExpansion(keyState);
         state = addRoundKey(state, keyState, 0);
@@ -222,7 +225,9 @@ public class Aes {
         state = shiftRows(state);
         state = addRoundKey(state, keyState, Nr);
         for (int i = 0; i < 4; i++) {
-            System.arraycopy(state[i], 0, result, i * 4, 4);
+            for (int j = 0; j < 4; j++) {
+                result[i * 4 + j] = state[j][i];
+            }
         }
         return result;
     }
