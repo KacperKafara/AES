@@ -123,7 +123,7 @@ public class Aes {
         return (byte) tab[row * 16 + col];
     }
 
-    public byte[][] subBytes(byte[][] state, int[] tab) {
+    private byte[][] subBytes(byte[][] state, int[] tab) {
         byte[][] result = new byte[4][4];
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -269,7 +269,7 @@ public class Aes {
             filledMsg.add(b);
         }
         while (filledMsg.size() % 16 != 0) {
-            filledMsg.add((byte) 0);
+            filledMsg.add((byte) 0x00);
         }
         byte[] block = new byte[16];
         for (int i = 0; i < filledMsg.size();) {
@@ -287,6 +287,8 @@ public class Aes {
     public List<Byte> decode(byte[] msg, byte[] key) throws Exception {
         List<Byte> filledMsg = new ArrayList<>();
         List<Byte> result = new ArrayList<>();
+        this.Nk = key.length / 4;
+        this.Nr = Nk + 6;
         byte[][] keyState = generateKeyState(key);
         for (byte b : msg) {
             filledMsg.add(b);
@@ -301,8 +303,10 @@ public class Aes {
                 result.add(block[j]);
             }
         }
-        for(int i = 0; i < result.size(); i++) {
-            if (result.get(i) == 0) {
+        for(int i = result.size() - 1; i >= 0; i--) {
+            if (result.get(i) != (byte) 0x00) {
+                return result;
+            } else {
                 result.remove(i);
             }
         }

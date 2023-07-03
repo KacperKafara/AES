@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="pl.kafara.AES.HelloController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
-
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.kafara.AES.HelloController">
+    <children>
+        <Button fx:id="loadDecryptedFileButton" layoutX="80.0" layoutY="191.0" mnemonicParsing="false" onAction="#loadDecryptedFile" text="Wczytaj plik" />
+        <TextArea fx:id="decryptedFileField" layoutX="20.0" layoutY="233.0" prefHeight="200.0" prefWidth="200.0" />
+        <Button fx:id="encryptButton" layoutX="219.0" layoutY="191.0" mnemonicParsing="false" onAction="#encrypt" text="Zaszyfruj" />
+        <TextArea fx:id="encryptedFileField" layoutX="282.0" layoutY="233.0" prefHeight="200.0" prefWidth="200.0" />
+        <Button fx:id="saveDecryptedFileButton" layoutX="84.0" layoutY="448.0" mnemonicParsing="false" onAction="#saveDecryptedFile" text="Zapisz plik" />
+        <Button fx:id="saveEncryptedFileButton" layoutX="346.0" layoutY="448.0" mnemonicParsing="false" onAction="#saveEncryptedFile" text="Zapisz plik" />
+        <Button fx:id="loadEncryptedFileButton" layoutX="342.0" layoutY="191.0" mnemonicParsing="false" onAction="#loadEncryptedFile" text="Wczytaj plik" />
+        <RadioButton layoutX="33.0" layoutY="27.0" mnemonicParsing="false" text="128" />
+        <RadioButton layoutX="207.0" layoutY="27.0" mnemonicParsing="false" text="192" />
+        <RadioButton layoutX="374.0" layoutY="27.0" mnemonicParsing="false" text="256" />
+        <Button fx:id="decryptButton" layoutX="217.0" layoutY="448.0" mnemonicParsing="false" onAction="#decrypt" text="Odszyfruj" />
+    </children>
+</Pane>
