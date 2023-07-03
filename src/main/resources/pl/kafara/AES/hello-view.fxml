@@ -12,9 +12,16 @@
         <Button fx:id="saveDecryptedFileButton" layoutX="84.0" layoutY="448.0" mnemonicParsing="false" onAction="#saveDecryptedFile" text="Zapisz plik" />
         <Button fx:id="saveEncryptedFileButton" layoutX="346.0" layoutY="448.0" mnemonicParsing="false" onAction="#saveEncryptedFile" text="Zapisz plik" />
         <Button fx:id="loadEncryptedFileButton" layoutX="342.0" layoutY="191.0" mnemonicParsing="false" onAction="#loadEncryptedFile" text="Wczytaj plik" />
-        <RadioButton layoutX="33.0" layoutY="27.0" mnemonicParsing="false" text="128" />
-        <RadioButton layoutX="207.0" layoutY="27.0" mnemonicParsing="false" text="192" />
-        <RadioButton layoutX="374.0" layoutY="27.0" mnemonicParsing="false" text="256" />
+        <RadioButton fx:id="rb128" layoutX="33.0" layoutY="27.0" mnemonicParsing="false" selected="true" text="128">
+            <toggleGroup>
+                <ToggleGroup fx:id="keyLength" />
+            </toggleGroup></RadioButton>
+        <RadioButton fx:id="rb192" layoutX="207.0" layoutY="27.0" mnemonicParsing="false" text="192" toggleGroup="$keyLength" />
+        <RadioButton fx:id="rb256" layoutX="374.0" layoutY="27.0" mnemonicParsing="false" text="256" toggleGroup="$keyLength" />
         <Button fx:id="decryptButton" layoutX="217.0" layoutY="448.0" mnemonicParsing="false" onAction="#decrypt" text="Odszyfruj" />
+        <TextArea fx:id="keyField" layoutX="20.0" layoutY="57.0" prefHeight="38.0" prefWidth="452.0" />
+        <Button fx:id="generateKeyButton" layoutX="27.0" layoutY="112.0" mnemonicParsing="false" onAction="#generateKey" text="Generuj klucz" />
+        <Button fx:id="loadKeyButton" layoutX="159.0" layoutY="112.0" mnemonicParsing="false" onAction="#loadKey" text="Wczytaj klucz" />
+        <Button fx:id="saveKeyButton" layoutX="282.0" layoutY="112.0" mnemonicParsing="false" onAction="#saveKey" text="Zapisz klucz" />
     </children>
 </Pane>

@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -11,10 +12,11 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.URL;
 import java.util.List;
+import java.util.Random;
 import java.util.ResourceBundle;
 
 public class HelloController implements Initializable {
-    Aes aes = new Aes();
+    private final Aes aes = new Aes();
     @FXML
     private Button loadDecryptedFileButton;
 
@@ -39,11 +41,34 @@ public class HelloController implements Initializable {
     @FXML
     private TextArea encryptedFileField;
 
+    @FXML
+    private TextArea keyField;
+
+    @FXML
+    private Button generateKeyButton;
+
+    @FXML
+    private Button loadKeyButton;
+
+    @FXML
+    private Button saveKeyButton;
+
+    @FXML
+    private RadioButton rb128, rb192, rb256;
+
     private byte[] decryptedFile;
 
     private byte[] encryptedFile;
 
-    private byte[] key = "z$C&F)J@NcRfUjXn".getBytes();
+    private byte[] key;
+
+    private String byteToString(byte[] arr) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : arr) {
+            result.append(String.format("%x", Byte.toUnsignedInt(b)));
+        }
+        return result.toString();
+    }
 
     private void loadFile(int type, TextArea fileField) {
         FileChooser fileChooser = new FileChooser();
@@ -53,17 +78,15 @@ public class HelloController implements Initializable {
         if (f != null) {
             String fileName = f.getAbsolutePath();
             try (InputStream inputStream = new FileInputStream(fileName)) {
-                String output = "";
                 byte[] file = inputStream.readAllBytes();
                 if (type == 0) {
                     decryptedFile = file;
-                } else {
+                } else if (type == 1) {
                     encryptedFile = file;
+                } else if (type == 2) {
+                    key = file;
                 }
-                for (byte b : file) {
-                    output += String.format("%x", Byte.toUnsignedInt(b));
-                }
-                fileField.setText(output);
+                fileField.setText(byteToString(file));
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
@@ -79,8 +102,10 @@ public class HelloController implements Initializable {
                 try {
                     if (type == 0) {
                         outputStream.write(decryptedFile);
-                    } else {
+                    } else if (type == 1) {
                         outputStream.write(encryptedFile);
+                    } else if (type == 2) {
+                        outputStream.write(key);
                     }
                 } catch (NullPointerException e) {
                     System.out.println(e.getMessage());
@@ -117,14 +142,12 @@ public class HelloController implements Initializable {
             System.out.println("tak");
             List<Byte> res = aes.encode(decryptedFile, key);
             encryptedFile = new byte[res.size()];
-            String output = "";
             int i = 0;
             for (byte b : res) {
-                output += String.format("%x", Byte.toUnsignedInt(b));
                 encryptedFile[i] = b;
                 i++;
             }
-            encryptedFileField.setText(output);
+            encryptedFileField.setText(byteToString(encryptedFile));
         }
     }
 
@@ -134,15 +157,39 @@ public class HelloController implements Initializable {
             System.out.println("nie");
             List<Byte> res = aes.decode(encryptedFile, key);
             decryptedFile = new byte[res.size()];
-            String output = "";
             int i = 0;
             for (byte b : res) {
-                output += String.format("%x", Byte.toUnsignedInt(b));
                 decryptedFile[i] = b;
                 i++;
             }
-            decryptedFileField.setText(output);
+            decryptedFileField.setText(byteToString(decryptedFile));
         }
+    }
+
+    @FXML
+    public void loadKey() {
+        loadFile(2, keyField);
+    }
+
+    @FXML
+    public void generateKey() {
+        Random random = new Random();
+        if (rb128.isSelected()) {
+            key = new byte[16];
+            random.nextBytes(key);
+        } else if (rb192.isSelected()) {
+            key = new byte[24];
+            random.nextBytes(key);
+        } else {
+            key = new byte[32];
+            random.nextBytes(key);
+        }
+        keyField.setText(byteToString(key));
+    }
+
+    @FXML
+    public void saveKey() {
+        saveFile(2);
     }
 
     @Override
@@ -151,5 +198,6 @@ public class HelloController implements Initializable {
         decryptedFileField.setEditable(false);
         encryptedFileField.setWrapText(true);
         encryptedFileField.setEditable(false);
+        keyField.setEditable(false);
     }
 }
